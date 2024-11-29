@@ -1,10 +1,8 @@
 from flask import Flask, request, jsonify
-import google.generativeai as genai
 import pandas as pd
 import plotly.express as px
 import json
 from gemini import call_gemini
-import pandas as pd
 app = Flask(__name__)
 
 
@@ -15,8 +13,6 @@ def generate():
     query = request.json.get('query')
 
     # Call Gemini API to get the Python code for the query
-    model = genai.GenerativeModel("gemini-1.5-pro-latest")
-
     response = call_gemini(query)
     generated_code = response
     print("EEEEEEEEEEEEEEEEEEEEEE")
@@ -28,14 +24,21 @@ def generate():
         exec(generated_code,{},exec_locals)
         print("HERE")
         # If the figure is created successfully, return the graph's JSON data
-        if 'fig' in locals():
-            print("generation is sucessfull")
-            exec_locals['fig'].show()
-            plot_json = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-            return jsonify({'result': 'Graph generated', 'graph': plot_json, 'code': generated_code})
+        if 'fig' in exec_locals:
+           exec_locals['fig'].show()
+        if 'query_answer' in exec_locals:
+            
+            query_answer = exec_locals['query_answer']
+            print( "here?")
+            print(query_answer['1'])
+            print(query_answer['2'])
+            return jsonify(query_answer)
         else:
-
-            return jsonify({'result': 'Code executed but no graph returned', 'graph': None, 'code': generated_code})
+            return jsonify({
+                'result': 'Code executed but no query_answer returned',
+                'graph': None,
+                'code': generated_code
+            })
 
     except Exception as e:
         print(" then here right?")
