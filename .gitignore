@@ -1,0 +1,5 @@
+# Ignore archive(1) folder
+archive(1)/
+
+# Ignore main_dataset.csv file
+main_dataset.csv
