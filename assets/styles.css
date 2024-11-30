@@ -1,167 +1,177 @@
-/* General body styling */
+/* General body and layout styles */
 body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f7f7f7; /* Light background */
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
     margin: 0;
     padding: 0;
-    color: #333; /* Darker text for contrast */
+    color: #333;
 }
 
-/* Title Styling */
-.title {
-    text-align: center;
-    color: #4A90E2; /* Soft blue title */
-    font-size: 36px;
-    margin-top: 20px;
-    font-weight: 600;
-}
-
-/* Layout container for query input and graph */
-.layout-container {
-    display: flex;
-    justify-content: space-between;
-    margin: 20px auto;
-    width: 80%;
-    max-width: 1200px;
-}
-
-/* Chat Container */
-.chat-container {
-    width: 100%;
-    max-width: 800px;
-    margin: 20px auto;
-    padding: 20px;
-    background-color: #ffffff; /* White background for clarity */
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    height: 450px; /* Slightly taller */
-    overflow-y: auto; /* Scrollable for long history */
-    border: 1px solid #ddd; /* Subtle border */
-}
-
-/* User Message Styling */
-.user-message {
-    padding: 10px;
-    background-color: #e6f7ff; /* Light blue background */
-    border-radius: 5px;
-    margin-bottom: 10px;
-    font-weight: bold;
-    color: #00509e; /* Dark blue text */
-}
-
-/* System Message Styling */
-.system-message {
-    padding: 10px;
-    background-color: #fffbe6; /* Light yellow background */
-    border-radius: 5px;
-    margin-bottom: 10px;
-    font-weight: bold;
-    color: #b36b00; /* Orange text */
-}
-
-/* Query Input and Submit Button container */
-.query-container {
-    width: 30%;
+.main-container {
     display: flex;
     flex-direction: column;
+    align-items: center;
+    padding: 20px;
 }
 
-/* Query Input Field Styling */
+/* Header Section */
+.header-container {
+    width: 100%;
+    background-color: #007bff;
+    padding: 20px;
+    color: white;
+    text-align: center;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.title {
+    margin: 0;
+    font-size: 2em;
+    font-weight: bold;
+}
+
+/* Search Bar Section */
+.search-bar {
+    width: 80%;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+.search-bar-heading {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+    color: #555;
+}
+
 .query-input {
     width: 100%;
-    padding: 14px;
-    margin-bottom: 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc; /* Subtle border */
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
-    font-size: 16px;
+    padding: 10px;
+    margin-top: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1.1em;
 }
 
-/* Submit Button Styling */
 .submit-button {
-    padding: 14px;
-    border-radius: 5px;
-    background-color: #4A90E2; /* Soft blue */
+    background-color: #28a745;
     color: white;
+    padding: 10px 20px;
     border: none;
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 16px;
-    transition: transform 0.2s ease; /* Animation effect */
+    margin-top: 10px;
 }
 
 .submit-button:hover {
-    transform: scale(1.05); /* Button enlarges slightly on hover */
-    background-color: #357ABD; /* Darker blue on hover */
+    background-color: #218838;
 }
 
-/* Answer container for textual summary */
-.answer {
-    max-height: 300px;
-    overflow-y: auto;
-    padding: 10px;
-    background-color: #f9f9f9;
+/* Graph Section */
+.graph-container {
+    width: 80%;
+    background-color: white;
+    padding: 20px;
     border-radius: 8px;
-}
-
-/* Text summary table */
-.summary-title {
-    font-weight: bold;
-}
-
-.summary-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.summary-table td {
-    padding: 5px;
-    border: 1px solid #ddd;
-}
-
-/* Loading Indicator Styling */
-.dash-loading {
-    text-align: center;
-    margin-top: 20px;
-    color: #4A90E2; /* Matches theme color */
-    font-size: 16px;
-}
-
-/* Graph Placeholder */
-.graph {
-    margin-top: 20px;
-    border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
 }
 
-/* History Styling */
-.history-container {
-    margin-top: 30px;
+.graph-heading {
+    font-size: 1.2em;
+    color: #333;
 }
 
-.history-title {
-    font-size: 18px;
-    font-weight: bold;
-    color: #4A90E2;
+/* Answer Section */
+.answer-container {
+    width: 80%;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+.answer-heading {
+    font-size: 1.2em;
+    color: #333;
     margin-bottom: 10px;
 }
 
-.history-item {
-    margin-bottom: 15px;
-    padding: 10px;
-    background-color: #f2f2f2;
+.answer {
+    font-size: 1em;
+    color: #555;
+    line-height: 1.5;
+}
+
+/* Chat History Section */
+.history-container {
+    width: 80%;
+    background-color: white;
+    padding: 20px;
     border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
 }
 
-.history-item span {
-    font-weight: bold;
+.history-heading {
+    font-size: 1.2em;
+    color: #333;
+    margin-bottom: 10px;
 }
 
-.history-item p {
-    margin: 5px 0;
+.chat-container {
+    font-size: 1em;
+    color: #555;
+    line-height: 1.5;
 }
 
-/* Label for chat messages */
-.label {
-    font-size: 14px;
-    color: #4A90E2;
+/* Individual Messages */
+.user-message {
+    font-size: 1em;
+    color: #007bff;
+    margin-bottom: 10px;
+}
+
+.system-message {
+    font-size: 1em;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+/* Loading Spinner */
+.dcc-loading .dash-spinner {
+    color: #007bff;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+    .main-container {
+        padding: 10px;
+    }
+
+    .header-container {
+        padding: 10px;
+    }
+
+    .search-bar {
+        width: 100%;
+    }
+
+    .graph-container,
+    .answer-container,
+    .history-container {
+        width: 100%;
+    }
+
+    .query-input {
+        font-size: 1em;
+    }
+
+    .submit-button {
+        padding: 8px 16px;
+    }
 }

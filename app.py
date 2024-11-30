@@ -1,37 +1,34 @@
-# Core Dash and Plotly libraries
 import dash
 from dash import html, dcc  # Dash HTML and core components
 from dash.dependencies import Input, Output, State  # Callback-related dependencies
-
-# Requests for interacting with the Flask backend
 import requests
-
-# Plotly graph objects for creating and handling figures
 import plotly.graph_objs as go
-
-# JSON for decoding graph data
 import json
+import base64
+import io
+import pandas as pd
+import os
+# Ensure the upload directory is in the same place as the Python script
+UPLOAD_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)))
 
+# Create the upload directory if it doesn't exist
+if not os.path.exists(UPLOAD_DIR):
+    os.makedirs(UPLOAD_DIR)
 
 def parse_summary(raw_text):
     sections = raw_text.split("\n\n")
     formatted_sections = []
-    for section in sections : 
+    for section in sections: 
         lines = section.strip().split("\n")
         if not lines:
             continue
-
-        # Use the first line as the title
         title = lines[0]
         rows = lines[1:]
 
-        # Create a table for the data
         table_rows = [
             html.Tr([html.Td(cell) for cell in row.split(" ") if cell])  # Split by spaces for columns
             for row in rows
         ]
-
-        # Append formatted section
         formatted_sections.append(html.Div([
             html.H3(title, className="summary-title"),
             html.Table(table_rows, className="summary-table")
@@ -40,41 +37,113 @@ def parse_summary(raw_text):
     return html.Div(formatted_sections, className="summary-container")
 
 # Initialize Dash app
-# Initialize Dash app
 app = dash.Dash(__name__)
 
-# Layout of the Dash app
 app.layout = html.Div([
-    # Header
-    html.H1("Dataset Insight Driver", className="title"),
-
-    # Search bar section (query input and submit button)
+    # Main Layout Container
     html.Div([
-        dcc.Input(id='queryInput', type='text', placeholder="Ask your question here...", className="query-input"),
-        html.Button('Submit', id='submitButton', n_clicks=0, className="submit-button"),
-    ], className="search-bar"),
+        # Header (Inside its own container)
+        html.Div([
+            html.H1("Dataset Explorer", className="title"),
+        ], className="header-container"),
 
-    # Space for the textual answer (system's response)
-    html.Div(id='answer', className="answer"),
+        # File Upload Section (Inside its own container)
+        html.Div([
+            html.Div("Upload Dataset", className="upload-heading"),
+            dcc.Upload(
+                id='upload-data',
+                children=html.Div([
+                    'Drag and Drop or ',
+                    html.A('Select Files')
+                ]),
+                style={
+                    'width': '100%',
+                    'height': '60px',
+                    'lineHeight': '60px',
+                    'borderWidth': '1px',
+                    'borderStyle': 'dashed',
+                    'borderRadius': '5px',
+                    'textAlign': 'center',
+                    'margin': '10px'
+                },
+                accept='.csv',  # Only accept CSV files
+                multiple=False  # Allow single file upload only
+            ),
+            html.Div(id='upload-status', className="upload-status")  # To display status messages
+        ], className="upload-container"),
+
+                # Dataset Summary Section
+        html.Div([
+            html.H3("Dataset Summary", className="dataset-summary-heading"),
+            html.Div(id="dataset-summary", className="dataset-summary"),
+        ], className="summary-container"),
+
+        # Search Bar Section (Inside its own container)
+        html.Div([
+            html.Div("Ask questions about the dataset for insights", className="search-bar-heading"),
+            dcc.Input(id='queryInput', type='text', placeholder="Ask your question here...", className="query-input"),
+            html.Button('Submit', id='submitButton', n_clicks=0, className="submit-button"),
+        ], className="search-bar"),
+
+        # Answer Section (Inside its own container)
+        html.Div([
+                html.Div("Answer:", className="answer-heading"),
+            html.Div(id='answer', className="answer")
+        ], className="answer-container"),
+
+        # Graph Section (Inside its own container)
+        html.Div([
+            html.Div("Graph:", className="graph-heading"),
+            dcc.Loading(
+                id="loading-graph",
+                type="circle",  # You can change the type (circle, dot, etc.)
+                children=dcc.Graph(id='graph')
+            ),
+        ], className="graph-container"),
 
 
-    # Graph placeholder with a loading indicator
-    dcc.Loading(
-        id="loading-graph",
-        type="circle",  # You can change the type (circle, dot, etc.)
-        children=dcc.Graph(id='graph')
-    ),
-    # Container for the conversation history (chat container)
-    html.Div(id='chat-container', className="chat-container"),
-
+        # Chat History Section (Inside its own container)
+        html.Div([
+            html.Div("Chat history:", className="history-heading"),
+            html.Div(id='chat-container', className="chat-container")
+        ], className="history-container"),
+    ], className="main-container"),
 ])
 
 # Store conversation history in a global variable
 conversation_history = []
+
+
 @app.callback(
-    [Output('chat-container', 'children'),
-     Output('answer', 'children'),
-     Output('graph', 'figure')],
+    Output('upload-status', 'children'),
+    [Input('upload-data', 'contents')],
+    [State('upload-data', 'filename')]
+)
+def handle_file_upload(contents, filename):
+    if contents is None:
+        return "No file uploaded yet."
+
+    try:
+        # Parse the uploaded file
+        content_type, content_string = contents.split(',')
+        decoded = base64.b64decode(content_string)
+        df = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
+        # Save the uploaded file
+        upload_path = os.path.join(UPLOAD_DIR, "main_dataset.csv")
+        df.to_csv(upload_path, index=False)
+        return f"File '{filename}' uploaded and saved successfully!"
+    except Exception as e:
+        return f"Error processing the file: {str(e)}"
+
+@app.callback(
+    [
+        Output('chat-container', 'children'),
+        Output('answer', 'children'),
+        Output('graph', 'figure'),
+        Output('submitButton', 'disabled'),
+        Output('queryInput', 'disabled'),
+        Output('dataset-summary', 'children')
+    ],
     [Input('submitButton', 'n_clicks')],
     [State('queryInput', 'value')]
 )
@@ -82,63 +151,51 @@ def update_output(n_clicks, query):
     global conversation_history
 
     if not query or n_clicks == 0:
-        return conversation_history, "", go.Figure()
+        return conversation_history, "", go.Figure(), False, False, ""
+
+    disable_inputs = True
 
     try:
-        # Add user message to conversation history
         conversation_history.append(html.Div(f"User: {query}", className="user-message"))
-        
-        # Send query to the backend (Flask)
+
         response = requests.post("http://127.0.0.1:5000/generate", json={'query': query})
         data = response.json()
 
-        # Debugging
-        print("Frontend Data Received:", data)
-
-        # Extract textual answer
         answer_raw = data.get('1', '')
-        print("Answer Raw:", answer_raw)
-        
-        # Extract graph JSON and handle errors
         graph_data_raw = data.get('2', '{}')
+
+        describe_raw = data.get('describe', '{}')
+        info_raw = data.get('info', '')
+
         try:
             graph_data = json.loads(graph_data_raw)
         except json.JSONDecodeError as e:
-            print("Failed to decode graph JSON:", e)
-            return conversation_history, f"Error: Could not decode graph JSON - {str(e)}", go.Figure()
+            return conversation_history, f"Error: Could not decode graph JSON - {str(e)}", go.Figure(), False, False, ""
 
-        # Debugging
-        print("Graph Data (Raw JSON):", graph_data_raw)
-        print("Graph Data (Parsed):", graph_data)
-
-        # Create Plotly figure
         fig = go.Figure(
             data=graph_data.get('data', []),
             layout=graph_data.get('layout', {})
         )
 
-        # Format the textual answer
-        try:
-            formatted_answer = parse_summary(answer_raw)
-        except Exception as e:
-            print("Error in parsing summary:", e)
-            return conversation_history, f"Error in formatting answer: {str(e)}", go.Figure()
-
-        # Add system response to conversation history
+        formatted_answer = answer_raw
         conversation_history.append(html.Div(formatted_answer, className="system-message"))
 
-        # Add graph to conversation
         conversation_history.append(dcc.Graph(
             id=f'graph-{n_clicks}', figure=fig, className="graph", style={'marginTop': '20px', 'marginBottom': '20px'}
         ))
 
-        return conversation_history, html.Div(formatted_answer), fig
+        # Format describe and info for display
+        describe_df = pd.read_json(describe_raw).to_html(classes="table table-striped")
+        summary_html = f"<h4>Describe:</h4>{describe_df}<h4>Info:</h4><pre>{info_raw}</pre>"
+
+        return conversation_history, html.Div(formatted_answer), fig, False, False, html.Div([
+            html.Div(dcc.Markdown(summary_html), className="dataset-summary-content")
+        ])
 
     except Exception as e:
-        print("General Error:", e)
         error_message = f"Error: {str(e)}"
         conversation_history.append(html.Div(f"System: {error_message}", className="system-message"))
-        return conversation_history, error_message, go.Figure()
-
+        return conversation_history, error_message, go.Figure(), False, False, ""
+    
 if __name__ == '__main__':
     app.run_server(debug=True)
