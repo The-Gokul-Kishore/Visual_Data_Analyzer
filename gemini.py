@@ -22,7 +22,7 @@ def generate_dataset_context(df)->str:
 
 
 def generate_prompt(query,dataset_context)->str:
-    prompt = f"""Generate a Python code that executes automatically based on the following requirements. Avoid any extra explanations or unrelated details. 
+    prompt = f"""Generate a Python code that executes automatically based on the following requirements. Avoid any extra explanations or unrelated details.
 
     Assumptions:
 
@@ -37,40 +37,41 @@ def generate_prompt(query,dataset_context)->str:
         Write Python code that performs operations based on the provided dataset context and the query: {query}.
         The code should produce a visualization and explanation that is both clear and easy to understand, especially for non-experts.
         The visualization must include clearly labeled x-axis and y-axis with appropriate scaling based on the dataset’s context.
+        Provide a **detailed explanation** of the visualization, including a description of the dataset filtering/selection process (e.g., "The top 20 items were selected based on sales volume" or "The data was filtered to include only the most recent year").
+        The explanation should also address how the data was processed and why that approach was chosen to answer the query. This explanation should be stored in the query_answer['1'] field.
 
-    Handling Large Datasets:
-        If the query asks for a broader view (e.g., "show 100 instances" or "give me the top 100 items"), or if a broader view benefits the query (e.g., showing trends across many data points), process and display the necessary number of instances.
-        For general queries (where no specific requirement for large datasets is mentioned), limit the data displayed to the most relevant 20 instances by default.
-        Always ensure that the axes are properly labeled and that the scales of the axes are appropriate for the dataset and query context.
-        If the data has been filtered to a specific subset (e.g., top 20, or only certain categories), clearly specify this in the output.
+    Data Handling:
+        Use the dataset as needed for the query and handle accordingly, making sure to select the most relevant data points to answer the query effectively. Ensure that the data displayed is representative of the dataset's context and the query's intent.
 
     Explanation Format:
-        Provide an explanation of the query results in a well-formatted, user-friendly string. The explanation should make it clear for non-data-science individuals what the data means and how it answers the query.
+        Provide an explanation of the query results in a well-formatted, user-friendly string. The explanation should make it clear for non-data-science individuals what the data means and how it answers the query. The explanation should also include details on the selection of data points (e.g., top 20 items, specific time range) and the reasoning behind the selected approach.
+        The explanation should add context and what is happening
         This explanation should be stored in the query_answer['1'] field.
 
     Visualization:
-        Use Plotly to generate a suitable chart based on the query.
-        The chart should be easy to interpret, with clear labels, a title, and appropriately scaled axes. The visualization should effectively convey the insights derived from the data.
-        The code to generate the visualization should be stored in the query_answer['2'] field.
+        Use Plotly to generate a suitable chart based on the query. The chart should be easy to interpret, with clear labels, a title, and appropriately scaled axes. The visualization should effectively convey the insights derived from the data. The **Plotly figure object** (commonly referred to as a `fig`) should be stored in the query_answer['2'] field. This figure object should be fully formatted, with appropriate axes, labels, and titles, and ready for rendering in a Plotly-compatible environment.
 
-Guidelines for Visualization:
+        If necessary, aggregate the data (e.g., summing, averaging) to provide more meaningful insights in the visualization. Select a chart type that is relevant to the query. For example, use bar charts for categorical comparisons, scatter plots for relationships, line charts for trends, etc. Choose a chart type that best represents the data and the query.
 
-    If necessary, aggregate the data (e.g., summing, averaging) to provide more meaningful insights in the visualization.
-    Select a chart type that is relevant to the query. For example, use bar charts, scatter plots, line charts, etc., depending on the nature of the query.
-    Ensure that the axes are meaningful and not overly detailed, especially when using identifiers like IDs. Instead, use more context-relevant columns (like categories or numerical values).
-    The chart should serve to draw clear conclusions from the data, helping the user easily understand the patterns or insights.
+        Ensure that the axes are meaningful and not overly detailed, especially when using identifiers like IDs or overly specific data points. Instead, use more context-relevant columns (like categories, numerical values, or time periods).
+        The chart should serve to draw clear conclusions from the data, helping the user easily understand the patterns or insights.
+        The visualization should reflect a clear and digestible subset of the data, only showing what is necessary to answer the query. If the query asks for an overview or broad trend, ensure that the chart is scaled appropriately to convey that view without overwhelming the user with unnecessary details.
 
 json
     query_answer = {{
-        '1': str,  # Explanatory string for the query result
-        '2': str   # Plotly visualization code
+        '1': str,  # Explanatory string for the query result, including the filtering/selection process and reasoning
+        '2': 'Plotly figure object'   # Plotly figure object containing the generated visualization
     }}
-    
+
 Ensure that:
 
     The code adheres to the instructions and generates only what is necessary to execute the query and provide the visualization.
     The final explanation is clear and understandable, with the relevant insights and charts provided as part of the output.
     """
+
+
+
+
     print("prompt generated")
     return prompt
 def call_gemini(query):
