@@ -72,11 +72,6 @@ app.layout = html.Div([
             html.Div(id='upload-status', className="upload-status")  # To display status messages
         ], className="upload-container"),
 
-                # Dataset Summary Section
-        html.Div([
-            html.H3("Dataset Summary", className="dataset-summary-heading"),
-            html.Div(id="dataset-summary", className="dataset-summary"),
-        ], className="summary-container"),
 
         # Search Bar Section (Inside its own container)
         html.Div([
@@ -112,28 +107,7 @@ app.layout = html.Div([
 
 # Store conversation history in a global variable
 conversation_history = []
-
-
-@app.callback(
-    Output('upload-status', 'children'),
-    [Input('upload-data', 'contents')],
-    [State('upload-data', 'filename')]
-)
-def handle_file_upload(contents, filename):
-    if contents is None:
-        return "No file uploaded yet."
-
-    try:
-        # Parse the uploaded file
-        content_type, content_string = contents.split(',')
-        decoded = base64.b64decode(content_string)
-        df = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
-        # Save the uploaded file
-        upload_path = os.path.join(UPLOAD_DIR, "main_dataset.csv")
-        df.to_csv(upload_path, index=False)
-        return f"File '{filename}' uploaded and saved successfully!"
-    except Exception as e:
-        return f"Error processing the file: {str(e)}"
+loading = False
 
 @app.callback(
     [
@@ -141,61 +115,86 @@ def handle_file_upload(contents, filename):
         Output('answer', 'children'),
         Output('graph', 'figure'),
         Output('submitButton', 'disabled'),
-        Output('queryInput', 'disabled'),
-        Output('dataset-summary', 'children')
+        Output('queryInput', 'disabled')
     ],
-    [Input('submitButton', 'n_clicks')],
+    [Input('submitButton', 'n_clicks'),
+     Input('queryInput', 'n_submit')],  # Listen for Enter key press
     [State('queryInput', 'value')]
 )
-def update_output(n_clicks, query):
+def update_output(n_clicks, n_submit, query):
     global conversation_history
+    global loading
+    # Maximum retries
+    max_retries = 3
 
-    if not query or n_clicks == 0:
-        return conversation_history, "", go.Figure(), False, False, ""
+    # If no query is entered and neither submit nor enter is pressed, return default state
+    if not query or (n_clicks == 0 and n_submit == 0 and not loading):
+        return conversation_history, "", go.Figure(), False, False
+
+    # If a query is entered and it's not loading, show the loading state
+    if query and not loading:
+        loading = True
+        return conversation_history, "loading...", go.Figure(), True, True
 
     disable_inputs = True
 
-    try:
-        conversation_history.append(html.Div(f"User: {query}", className="user-message"))
-
-        response = requests.post("http://127.0.0.1:5000/generate", json={'query': query})
-        data = response.json()
-
-        answer_raw = data.get('1', '')
-        graph_data_raw = data.get('2', '{}')
-
-        describe_raw = data.get('describe', '{}')
-        info_raw = data.get('info', '')
-
+    # Process the query when loading is True
+    for attempt in range(max_retries):
         try:
-            graph_data = json.loads(graph_data_raw)
-        except json.JSONDecodeError as e:
-            return conversation_history, f"Error: Could not decode graph JSON - {str(e)}", go.Figure(), False, False, ""
+            # Log the current attempt
+            print(f"Attempt {attempt + 1} of {max_retries}")
 
-        fig = go.Figure(
-            data=graph_data.get('data', []),
-            layout=graph_data.get('layout', {})
-        )
+            # Add user query to conversation history only once
+            if attempt == 0:  # Only add the query during the first attempt
+                conversation_history.append(html.Div(f"User: {query}", className="user-message"))
 
-        formatted_answer = answer_raw
-        conversation_history.append(html.Div(formatted_answer, className="system-message"))
+            # Send query to the backend
+            response = requests.post("http://127.0.0.1:5000/generate", json={'query': query})
+            response.raise_for_status()  # Raise an error for bad HTTP status codes
+            data = response.json()
 
-        conversation_history.append(dcc.Graph(
-            id=f'graph-{n_clicks}', figure=fig, className="graph", style={'marginTop': '20px', 'marginBottom': '20px'}
-        ))
+            # Extract data from the response
+            answer_raw = data.get('1', '')
+            graph_data_raw = data.get('2', '{}')
 
-        # Format describe and info for display
-        describe_df = pd.read_json(describe_raw).to_html(classes="table table-striped")
-        summary_html = f"<h4>Describe:</h4>{describe_df}<h4>Info:</h4><pre>{info_raw}</pre>"
+            # Parse graph data
+            try:
+                graph_data = json.loads(graph_data_raw)
+            except json.JSONDecodeError as e:
+                raise ValueError(f"Could not decode graph JSON - {str(e)}")
 
-        return conversation_history, html.Div(formatted_answer), fig, False, False, html.Div([
-            html.Div(dcc.Markdown(summary_html), className="dataset-summary-content")
-        ])
+            # Create the graph figure
+            fig = go.Figure(
+                data=graph_data.get('data', []),
+                layout=graph_data.get('layout', {})
+            )
 
-    except Exception as e:
-        error_message = f"Error: {str(e)}"
-        conversation_history.append(html.Div(f"System: {error_message}", className="system-message"))
-        return conversation_history, error_message, go.Figure(), False, False, ""
-    
+            # Format the answer
+            formatted_answer = answer_raw
+            conversation_history.append(html.Div(formatted_answer, className="system-message"))
+
+            # Append the graph to the conversation
+            conversation_history.append(dcc.Graph(
+                id=f'graph-{n_clicks}', figure=fig, className="graph", style={'marginTop': '20px', 'marginBottom': '20px'}
+            ))
+
+            # Reset loading state after processing is complete
+            loading = False
+
+            # Return success response
+            return conversation_history, html.Div(formatted_answer), fig, False, False
+
+        except Exception as e:
+            # Log the error and retry
+            loading = False
+            print(f"Error encountered during attempt {attempt + 1}: {str(e)}")
+            if attempt < max_retries - 1:
+                continue  # Retry on failure
+            else:
+                # Maximum retries exceeded
+                error_message = f"Error: Unable to process your query after {max_retries} attempts. Please try again later."
+                conversation_history.append(html.Div(error_message, className="system-message"))
+                return conversation_history, error_message, go.Figure(), False, False
+ 
 if __name__ == '__main__':
     app.run_server(debug=True)
