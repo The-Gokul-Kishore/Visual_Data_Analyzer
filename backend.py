@@ -72,22 +72,6 @@ def generate():
                 return jsonify({'error': str(e)})
 
 
-DATASET_PATH = os.path.join(UPLOAD_DIR, "main_dataset.csv")
-
-@app.route('/summarize', methods=['GET'])
-def summarize():
-    if not os.path.exists(DATASET_PATH):
-        return jsonify({"error": "Dataset not found. Please upload a dataset."}), 404
-
-    try:
-        df = pd.read_csv(DATASET_PATH)
-        summary = {
-            "describe": df.describe(include='all').to_dict(),
-            "info": df.info(buf=None)  # Use `buf=None` to return as a string
-        }
-        return jsonify(summary)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
