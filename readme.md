@@ -10,7 +10,6 @@ This uses the power of Gemini to achive insights and visualizations.
 - **Insights Generation:** The app processes the queries and provides relevant answers.
 - **Interactive Visualizations:** Automatically generates graphs and charts based on the dataset and query.
 - **Chat History:** Track and review previous queries and answers.
-- **Customizable Meta Tags:** Customize the metadata for the application for improved search and SEO.
 
 ## Tech Stack
 
