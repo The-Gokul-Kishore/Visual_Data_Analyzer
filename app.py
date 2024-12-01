@@ -16,8 +16,12 @@ app = dash.Dash(__name__)
 
 # Layout for the Dash application
 app.layout = html.Div([
+    
+    
+
     # Main Layout Container
     html.Div([
+        
         # Header (Application title)
         html.Div([
             html.H1("Visual Data Analyser", className="title"),
@@ -189,4 +193,4 @@ def process_query(n_clicks, n_submit, query):
 
 # Run the Dash app
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)
