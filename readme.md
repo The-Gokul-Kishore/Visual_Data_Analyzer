@@ -1,6 +1,7 @@
 # Visual Data Analyzer
 
-The **Visual Data Analyzer** is a web-based tool that allows users to upload CSV files, ask natural language questions about the dataset, and receive insights along with interactive visualizations. Powered by machine learning and a dynamic charting system, this application provides an intuitive way to explore and visualize datasets.
+The **Visual Data Analyzer** is a web-based tool that allows users to upload CSV files, ask natural language questions about the dataset, and receive insights along with interactive visualizations. Powered by machine learning and a dynamic charting system, this application provides an intuitive way to explore and visualize datasets. 
+This uses the power of Gemini to achive insights and visualizations.
 
 ## Features
 
@@ -59,7 +60,7 @@ Ensure you have the following libraries:
 - `plotly`
 - `requests`
 - `flask`
-- `gemini` (or your preferred NLP model integration)
+- `google-generativeai`
 
 ### Step 4: Running the Backend
 
