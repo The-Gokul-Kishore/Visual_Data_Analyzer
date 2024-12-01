@@ -66,7 +66,7 @@ Ensure you have the following libraries:
 Before running the Dash frontend, ensure that the backend Flask server is running. In a separate terminal window, navigate to the project folder and run:
 
 ```bash
-python backend.py  # Ensure the backend script is named appropriately
+python backend.py  
 ```
 
 This will start the Flask server that handles queries and data processing.
