@@ -3,3 +3,5 @@ archive(1)/
 
 # Ignore main_dataset.csv file
 main_dataset.csv
+
+dash_llm/

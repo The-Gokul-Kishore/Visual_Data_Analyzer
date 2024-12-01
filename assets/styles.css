@@ -13,6 +13,59 @@ body {
     align-items: center;
     padding: 20px;
 }
+/* About Section */
+.about-container {
+    width: 80%;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+.about-title {
+    font-size: 2em;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.about-description {
+    color: #555;
+    line-height: 1.5;
+}
+
+.about-instructions {
+  
+    color: #777;
+    line-height: 1.5;
+}
+
+.history-title {
+    font-size: 1.4em;
+    color: #333;
+    margin-top: 20px;
+}
+
+.history-description {
+    color: #555;
+    line-height: 1.5;
+}
+
+.example-query {
+    font-size: 1.2em;
+    color: #555; /* A more neutral color */
+    margin-top: 10px;
+}
+
+
+/* Add padding to the body if necessary */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 20px;
+    color: #333;
+}
 
 /* Header Section */
 .header-container {

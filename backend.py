@@ -5,54 +5,51 @@ import plotly.express as px
 import json
 import numpy as np
 from gemini import call_gemini
-import time  # Import time for sleep
+import time  # Import time for sleep between retries
 
 app = Flask(__name__)
 
-# Define the maximum number of retries
+# Define the maximum number of retries in case of errors
 MAX_RETRIES = 3
 
 @app.route('/generate', methods=['POST'])
 def generate():
-    print("EEERIRIR\n\n")
     # Get the user query from the frontend
     query = request.json.get('query')
-    print("here")
+    print(f"Received query: {query}")
     
-    # Call Gemini API to get the Python code for the query
+    # Call Gemini API to get Python code for the query
     response = call_gemini(query)
     generated_code = response
-    print("EEEEEEEEEEEEEEEEEEEEEE")
-    print(response)
+    print(f"Generated code from Gemini: {generated_code}")
 
-    # Initialize a counter for retries
+    # Initialize a counter for retries in case of errors
     retry_count = 0
 
     while retry_count < MAX_RETRIES:
         try:
-            # Assume the generated code returns a Plotly figure `fig`
+            # Prepare the execution environment for the generated code
             exec_locals = {
                 'pd': pd,
                 'np': np,
                 'px': px,
                 'pio': pio
             }
+
+            # Execute the generated code to process the query and generate the graph
             exec(generated_code, {}, exec_locals)
-            print("HERE")
+            print("Executed generated code.")
 
-            # If the figure is created successfully, return the graph's JSON data
+            # Check if the 'fig' (graph) was created successfully
             if 'fig' in exec_locals:
-                print("fig is present")
-
-            if 'query_answer' in exec_locals:
-                query_answer = exec_locals['query_answer']
-                print("here?")
-                print(query_answer['1'])
-                query_answer['2'] = pio.to_json(exec_locals['query_answer']['2'])
+                # Return the answer and graph data as JSON
+                query_answer = exec_locals.get('query_answer', {'1': 'No answer', '2': {}})
+                query_answer['2'] = pio.to_json(exec_locals['fig'])
                 return jsonify(query_answer)
             else:
+                # Return an error message if no figure is created
                 return jsonify({
-                    'result': 'Code executed but no query_answer returned',
+                    'result': 'Code executed but no figure created.',
                     'graph': None,
                     'code': generated_code
                 })
@@ -62,15 +59,14 @@ def generate():
 
             # Increment retry count
             retry_count += 1
-            
-            # If we have retries left, wait a bit and retry
+
+            # If retries are left, wait for a while and retry
             if retry_count < MAX_RETRIES:
                 print("Retrying...")
                 time.sleep(2)  # Wait for 2 seconds before retrying
             else:
-                # After MAX_RETRIES, return the error
+                # After maximum retries, return the error message
                 return jsonify({'error': str(e)})
-
 
 
 if __name__ == '__main__':

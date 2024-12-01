@@ -22,6 +22,7 @@ def generate_dataset_context(df)->str:
 
 
 def generate_prompt(query,dataset_context)->str:
+        # Generate a prompt for the Gemini API based on the query and dataset context
     prompt = f"""Generate a Python code that executes automatically based on the following requirements. Avoid any extra explanations or unrelated details.
 
     Assumptions:
@@ -46,6 +47,7 @@ def generate_prompt(query,dataset_context)->str:
             - Provides context to the visualization by describing what it represents, how the insights were derived, and the reasoning behind any preprocessing or analysis.
             - Is formatted as a user-friendly string that non-experts can easily understand.
             - and also explains what is the process  behind the graph and what data is used
+            - Is in plain text format in a pragraph form
 
     Visualization (`query_answer['2']`):
         Use Plotly to create a chart that complements the explanation and directly answers the query. This chart must:
@@ -73,32 +75,36 @@ json
 
 Ensure that the code adheres strictly to these instructions, producing outputs that are aligned with the query and dataset context.
 """
-
-
-
-
-
-    print("prompt generated")
+    print("Prompt generated")
     return prompt
 def call_gemini(query):
-    print("gemin_call")
-    df = pd.read_csv('main_dataset.csv')
-    genai.configure(api_key="AIzaSyAg9e0YBPIRJdEPcGclhvoM0-Uaw37qyNo")
-    model = genai.GenerativeModel("gemini-1.5-flash")
-    print("model connect)")
+    # Function to interact with Gemini API to generate content based on a query and dataset
+    print("Gemini call initiated")
+    df = pd.read_csv('main_dataset.csv')  # Read the dataset from CSV
+    genai.configure(api_key="AIzaSyAg9e0YBPIRJdEPcGclhvoM0-Uaw37qyNo")  # Set up Gemini API
+    model = genai.GenerativeModel("gemini-1.5-flash")  # Initialize the Gemini model
+    print("Model connected")
+
+    # Generate dataset context
     dataset_context = generate_dataset_context(df)
-    print("HELO")
-    prompt = generate_prompt(query=query,dataset_context=dataset_context)
+    print("Dataset context generated")
+
+    # Generate the prompt for the query
+    prompt = generate_prompt(query=query, dataset_context=dataset_context)
+
+    # Request content generation from the model
     response = model.generate_content(prompt)
-    print("EHEEEr")
-    print(response)
-    
+    print("Response received")
+
+    # Extract the response text and clean it up
     text = response.text
-    text  = text.lstrip()
-    print("Type of string:",type(text))
+    text = text.lstrip()  # Remove leading whitespace
+    print("Type of string:", type(text))
+
+    # Clean the Python code from response if wrapped in markdown
     if text.startswith("```python"):
         text = text[9:]  # Remove the first 9 characters
-        # Alternatively, use replace for multiple occurrences
         text = text.replace("```python", "```").replace("```", "")  # Clean up any remaining backticks
-    print(text)
-    return text
+
+    print("Generated code:", text)
+    return text  # Return the generated code as a string
