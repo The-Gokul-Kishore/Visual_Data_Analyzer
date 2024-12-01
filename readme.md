@@ -20,7 +20,6 @@ The **Visual Data Analyzer** is a web-based tool that allows users to upload CSV
 - **Frontend:** Dash, HTML, CSS, JavaScript
 - **Backend:** Flask (for handling queries and processing data)
 - **Charting:** Plotly (for creating dynamic graphs and charts)
-- **Machine Learning:** Natural language processing (NLP) and custom models for query understanding
 - **File Handling:** Pandas for managing and processing CSV files
 - **APIs:** Gemini API for dynamic querying (customized for natural language processing)
 
@@ -35,7 +34,7 @@ Make sure you have Python 3.x installed. You will also need to install the follo
 Clone this repository to your local machine:
 
 ```bash
-git clone https://github.com/yourusername/visual-data-analyzer.git
+git clone https://github.com/The-Gokul-Kishore/Visual_Data_Analyzer.git
 cd visual-data-analyzer
 ```
 
@@ -45,7 +44,7 @@ It's recommended to use a virtual environment to manage dependencies:
 
 ```bash
 python -m venv venv
-source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+source Dash_llm/bin/activate  # On Windows use `venv\Scripts\activate`
 ```
 
 ### Step 3: Install Dependencies
