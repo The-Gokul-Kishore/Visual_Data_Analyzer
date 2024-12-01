@@ -155,7 +155,7 @@ def process_query(n_clicks, n_submit, query):
             conversation_history.append(html.Div(f"[{timestamp}] User: {query}", className="user-message"))
 
             # Simulate backend request and fetch response
-            response = requests.post("https://visual-data-analyzer.onrender.com/generate", json={'query': query})
+            response = requests.post("http://127.0.0.1:5000/generate", json={'query': query})
             response.raise_for_status()  # Raise error for non-200 HTTP responses
             data = response.json()
 
