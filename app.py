@@ -33,7 +33,7 @@ app.layout = html.Div([
                 "With the power of Gemini, we can process them into meaningful insights through the search bar.", 
                 className="about-description"),
             html.P("To use it, upload your dataset, type your question about the data, and hit 'Submit' or press 'Enter' "
-                "to get the answer along with any relevant graphs.", className="about-instructions"),
+                      "to get the answer along with any relevant graphs.\n ask it anything in about the data from simple queries like 'summarize the data' to complex operations it can do it", className="about-instructions"),
             html.H4("History Functionality", className="history-title"),
             html.P("This application also keeps track of your queries and the responses generated, creating a "
                 "history of your interactions with the system.", className="history-description"),
