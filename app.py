@@ -98,8 +98,6 @@ app.layout = html.Div([
         ], className="history-container"),
     ], className="main-container"),
 ])
-
-# Callback for handling file upload and saving the CSV
 @app.callback(
     Output('upload-status', 'children'),
     [Input('upload-data', 'contents')],
@@ -112,7 +110,12 @@ def handle_file_upload(contents, filename):
         # Decode and parse the uploaded CSV file
         content_type, content_string = contents.split(',')
         decoded = base64.b64decode(content_string)
-        df = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
+        
+        # Attempt to decode with utf-8, and fallback to other encodings if necessary
+        try:
+            df = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
+        except UnicodeDecodeError:
+            df = pd.read_csv(io.StringIO(decoded.decode('latin1')))
         
         # Save the uploaded file
         upload_path = os.path.join("main_dataset.csv")
@@ -190,4 +193,4 @@ def process_query(n_clicks, n_submit, query):
 
 # Run the Dash app
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=True)

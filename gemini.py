@@ -12,7 +12,7 @@ def generate_dataset_context(df)->str:
     # Create dataset context
     dataset_context = f"""
     The dataset has the following columns: {list(df.columns)}.
-    Sample data: {df.head(3).to_dict(orient='records')}.
+    Sample data: {df.head(5).to_dict(orient='records')}.
     Statistical summary (describe): {describe_data}.
     Dataset info: {info_str}.
     Column data types: {df.dtypes.to_dict()}.
@@ -31,7 +31,7 @@ def generate_prompt(query,dataset_context)->str:
     The dataset is already available as a CSV file named main_dataset.csv. No new dataset creation or inclusion is required in the code.
     The dataset context is provided as {dataset_context}.
     The Python version being used is 3.12.
-
+    If dates or other formats are present kindly check what kinds are present
     Task Instructions:
 
     Code Execution:
