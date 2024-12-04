@@ -99,6 +99,5 @@ visual-data-analyzer/
 ├── assets/               # Contains static files like images and stylesheets
 │   └── styles.css        # Custom CSS for app styling
 ├── README.md             # Project README
-└── data/                 # Folder to store uploaded datasets (optional)
 ```
 
