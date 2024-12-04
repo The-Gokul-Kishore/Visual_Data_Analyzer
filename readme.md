@@ -58,6 +58,7 @@ Ensure you have the following libraries:
 - `plotly`
 - `requests`
 - `flask`
+- `requests`
 - `google-generativeai`
 
 ### Step 4: Running the Backend
