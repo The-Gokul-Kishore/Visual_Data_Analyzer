@@ -13,8 +13,8 @@ This uses the power of Gemini to achive insights and visualizations.
 
 ## Tech Stack
 
-- **Frontend:** Dash, HTML, CSS, JavaScript
-- **Backend:** Flask (for handling queries and processing data)
+- **Frontend:** Dash
+- **Backend:** Flask 
 - **Charting:** Plotly (for creating dynamic graphs and charts)
 - **File Handling:** Pandas for managing and processing CSV files
 - **APIs:** Gemini API for dynamic querying (customized for natural language processing)
@@ -58,6 +58,7 @@ Ensure you have the following libraries:
 - `plotly`
 - `requests`
 - `flask`
+- `requests`
 - `google-generativeai`
 
 ### Step 4: Running the Backend

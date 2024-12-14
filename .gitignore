@@ -5,3 +5,4 @@ archive(1)/
 main_dataset.csv
 
 dash_llm/
+.env/
