@@ -75,7 +75,7 @@ This will start the Flask server that handles queries and data processing.
 After the backend is running, start the Dash frontend with the following command:
 
 ```bash
-python app.py
+python frontend.py
 ```
 
 This will launch the web application locally on `http://127.0.0.1:8050`.
@@ -92,13 +92,13 @@ This will launch the web application locally on `http://127.0.0.1:8050`.
 ```
 visual-data-analyzer/
 │
-├── app.py                # Main Dash app script (frontend)
+├── fronted.py                # Main Dash app script (frontend)
 ├── backend.py            # Flask backend for data processing and query handling
 ├── requirements.txt      # List of dependencies
 ├── main_dataset.csv      # (Optional) Default CSV dataset to load
 ├── assets/               # Contains static files like images and stylesheets
 │   └── styles.css        # Custom CSS for app styling
 ├── README.md             # Project README
-└── data/                 # Folder to store uploaded datasets (optional)
+└── gemini.py             # for handling gemini 
 ```
 
